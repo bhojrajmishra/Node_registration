@@ -29,9 +29,40 @@ if(!email || !username || !password ){
         username : username,
         password : bcrypt.hashSync(password,8)
     })
-    res.send("user register successfully")
+    res.redirect("/login")
 })
 
-app.listen(3000,()=>{
-    console.log("nodejs project is running at port 3000")
+app.get("/login",(req,res)=>{
+    res.render("login")
+})
+app.post("/login",async(req,res)=>{
+    const email = req.body.email
+    const password = req.body.password
+    // 1st  tyo email vayeko kohi hamro users tabe ma xa ki xainw 
+    const userExists = await users.findAll({
+        where: {
+            email:email
+        }
+    })
+    if(userExists.length > 0){
+        //2nd password check garnu paryoo
+       const ismatch = bcrypt.compareSync(password,userExists[0].password)
+       console.log(ismatch)
+       if(ismatch){
+        res.send("you are looged in")
+       }
+       else{
+        res.send("invalid email or password")
+       }
+    }
+    else{
+        res.send("user not exist")
+    }
+    //console.log(userExists)
+
+ 
+    
+})
+app.listen(4000,()=>{
+    console.log("nodejs project is running at port 4000")
 })
